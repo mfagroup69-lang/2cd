@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سجل المهام</title>
+<style>
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background-color: #fff3e0;
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+
+  header {
+    background-color: #ff7f50;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 1.6em;
+    font-weight: bold;
+  }
+
+  .log-container {
+    max-width: 400px;
+    margin: 20px auto;
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  .log-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .log-container li {
+    padding: 10px;
+    border-bottom: 1px solid #ffd1b3;
+    font-size: 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .log-container li:last-child {
+    border-bottom: none;
+  }
+
+  .delete-btn {
+    background-color: #ff7f50;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+</style>
+</head>
+<body>
+<header>📜 سجل المهام</header>
+
+<div class="log-container">
+  <ul id="logList"></ul>
+</div>
+
+<script>
+  const logList = document.getElementById('logList');
+
+  function updateLog() {
+    logList.innerHTML = '';
+    for(let i=0; i<localStorage.length; i++){
+      const key = localStorage.key(i);
+      if(key.startsWith('task_')){
+        const task = JSON.parse(localStorage.getItem(key));
+        const li = document.createElement('li');
+        li.textContent = task.title;
+        
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '❌';
+        delBtn.className = 'delete-btn';
+        delBtn.onclick = () => {
+          localStorage.removeItem(key);
+          updateLog();
+          location.reload(); // إعادة تحميل index.html لاحقًا لتحديث المهام
+        };
+        li.appendChild(delBtn);
+        logList.appendChild(li);
+      }
+    }
+  }
+
+  updateLog();
+</script>
+
+</body>
+</html>

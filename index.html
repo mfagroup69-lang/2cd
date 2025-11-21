@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مهامي</title>
+<style>
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background-color: #fff;
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+
+  header {
+    background-color: #ff7f50;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 1.8em;
+    font-weight: bold;
+  }
+
+  .header-extra {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    background-color: #ffd1b3;
+    padding: 8px 0;
+  }
+  .header-extra button {
+    background-color: #ff7f50;
+    color: white;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+  }
+
+  .tasks {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 0 10px;
+  }
+
+  .task {
+    background-color: #ffe5d9;
+    border-radius: 12px;
+    padding: 15px 15px 20px 15px;
+    margin-bottom: 15px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .task:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+  }
+
+  .task h2 {
+    margin-bottom: 5px;
+    font-size: 1.2em;
+  }
+  .task p {
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #555;
+  }
+  .task .date {
+    font-size: 0.8em;
+    color: #777;
+  }
+  .task button {
+    margin-top: 8px;
+    background-color: #ff7f50;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+  }
+  .task input[type="checkbox"] {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<header>📝 مهامي</header>
+
+<div class="header-extra">
+  <button onclick="window.location.href='log.html'">📜 سجل</button>
+  <button onclick="location.reload()">🔄 تحديث الصفحة</button>
+</div>
+
+<div class="tasks">
+  <div class="task" data-id="1">
+    <input type="checkbox">
+    <h2>📌 المهمة 1</h2>
+    <p>وصف خفيف للمهمة الأولى.</p>
+    <div class="date">تاريخ: 2025/11/21</div>
+    <button onclick="downloadFile('file1.txt')">💾 حل المهمة</button>
+  </div>
+
+  <div class="task" data-id="2">
+    <input type="checkbox">
+    <h2>📌 المهمة 2</h2>
+    <p>وصف خفيف للمهمة الثانية.</p>
+    <div class="date">تاريخ: 2025/11/21</div>
+    <button onclick="downloadFile('file2.txt')">💾 حل المهمة</button>
+  </div>
+  <div class="task" data-id="3">
+    <input type="checkbox">
+    <h2>📌 اللغة العربية</h2>
+    <p>تحضير نص الاول في الوحدة الرابعة</p>
+    <div class="date">تاريخ: 2025/11/22</div>
+    <button onclick="downloadFile('file2.txt')">💾 حل المهمة</button>
+  </div>
+</div>
+
+</div>
+  
+
+<script>
+  const tasks = document.querySelectorAll('.task');
+
+  function downloadFile(filename) {
+    const element = document.createElement('a');
+    const fileContent = "هذا محتوى " + filename;
+    const blob = new Blob([fileContent], { type: 'text/plain' });
+    element.href = URL.createObjectURL(blob);
+    element.download = filename;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }
+
+  // حفظ المهام المنجزة وإخفاؤها
+  tasks.forEach(task => {
+    const checkbox = task.querySelector('input[type="checkbox"]');
+    const taskId = task.dataset.id;
+    const title = task.querySelector('h2').textContent;
+
+    const saved = localStorage.getItem('task_' + taskId);
+    if(saved) task.style.display = 'none';
+
+    checkbox.addEventListener('change', () => {
+      if(checkbox.checked){
+        localStorage.setItem('task_' + taskId, JSON.stringify({ title: title }));
+        task.style.display = 'none';
+      } else {
+        localStorage.removeItem('task_' + taskId);
+        task.style.display = 'block';
+      }
+    });
+  });
+
+  // طلب إذن الإشعارات
+  // طلب إذن الإشعارات فقط
+if('Notification' in window){
+  Notification.requestPermission();
+}
+
+// وظيفة إرسال الإشعار
+function sendNotification() {
+  if(Notification.permission === 'granted'){
+    new Notification('📌 مهام جديدة', { body: 'توجد مهام جديدة اليوم!' });
+  }
+}
+
+// إشعار يومي الساعة 6 مساءً
+function dailyNotification() {
+  const now = new Date();
+  const target = new Date();
+  target.setHours(18,0,0,0); // الساعة 6 مساءً
+  let timeout = target - now;
+  if(timeout < 0) timeout += 24*60*60*1000; // الغد
+  setTimeout(() => {
+    sendNotification(); // يظهر أول إشعار الساعة 6
+    setInterval(sendNotification, 24*60*60*1000); // كل 24 ساعة بعد ذلك
+  }, timeout);
+}
+dailyNotification();
+
+</script>
+
+</body>
+</html>
+
+
